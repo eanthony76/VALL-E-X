@@ -73,9 +73,11 @@ print("VALL-E Loaded")
 
 # Encodec model
 audio_tokenizer = AudioTokenizer(device2)
+print("Tokenizer Loaded")
 
 # Vocos decoder
 vocos = Vocos.from_pretrained('charactr/vocos-encodec-24khz').to(device2)
+print("Encoder Loaded")
 
 # ASR
 whisper_processor = WhisperProcessor.from_pretrained("openai/whisper-medium")
