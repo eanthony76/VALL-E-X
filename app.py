@@ -579,4 +579,4 @@ with app:
                           inputs=[textbox_4, preset_dropdown_4, prompt_file_4, language_dropdown_4, accent_dropdown_4],
                           outputs=[text_output_4, audio_output_4])
 print("Launching App")
-app.launch(share=True, prevent_thread_lock=True, server_name='0.0.0.0')
+app.launch(share=True, server_name='0.0.0.0')
