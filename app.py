@@ -81,9 +81,11 @@ print("Encoder Loaded")
 
 # ASR
 whisper_processor = WhisperProcessor.from_pretrained("openai/whisper-medium")
+print("Processor Loaded")
 whisper = WhisperForConditionalGeneration.from_pretrained("openai/whisper-medium").to(device)
-whisper.config.forced_decoder_ids = None
 print("Whisper Loaded")
+whisper.config.forced_decoder_ids = None
+print("Whisper Configs Set")
 # Voice Presets
 preset_list = os.walk("./presets/").__next__()[2]
 preset_list = [preset[:-4] for preset in preset_list if preset.endswith(".npz")]
