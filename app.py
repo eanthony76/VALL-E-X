@@ -61,6 +61,7 @@ model = VALLE(
         prepend_bos=True,
         num_quantizers=NUM_QUANTIZERS,
     ).to(device2)
+print("Model Loading...")
 checkpoint = torch.load("./epoch-10.pt", map_location='cpu')
 missing_keys, unexpected_keys = model.load_state_dict(
     checkpoint["model"], strict=True
