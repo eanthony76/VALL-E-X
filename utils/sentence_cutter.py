@@ -2,7 +2,6 @@ import nltk
 import jieba
 import sudachipy
 import langid
-nltk.download('punkt')
 langid.set_languages(['en', 'zh', 'ja'])
 
 def split_text_into_sentences(text):
