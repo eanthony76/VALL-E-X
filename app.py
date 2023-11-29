@@ -68,6 +68,7 @@ missing_keys, unexpected_keys = model.load_state_dict(
 del checkpoint
 assert not missing_keys
 model.eval()
+print("VALL-E Loaded")
 
 # Encodec model
 audio_tokenizer = AudioTokenizer(device2)
@@ -79,7 +80,7 @@ vocos = Vocos.from_pretrained('charactr/vocos-encodec-24khz').to(device2)
 whisper_processor = WhisperProcessor.from_pretrained("openai/whisper-medium")
 whisper = WhisperForConditionalGeneration.from_pretrained("openai/whisper-medium").to(device)
 whisper.config.forced_decoder_ids = None
-
+print("Whisper Loaded")
 # Voice Presets
 preset_list = os.walk("./presets/").__next__()[2]
 preset_list = [preset[:-4] for preset in preset_list if preset.endswith(".npz")]
@@ -576,5 +577,5 @@ with app:
                 btn_4.click(infer_long_text,
                           inputs=[textbox_4, preset_dropdown_4, prompt_file_4, language_dropdown_4, accent_dropdown_4],
                           outputs=[text_output_4, audio_output_4])
-
+print("Launching App")
 app.launch(share=True, prevent_thread_lock=True)
