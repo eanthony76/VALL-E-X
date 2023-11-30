@@ -639,6 +639,7 @@ with app:
                           inputs=[textbox_4, preset_dropdown_4, prompt_file_4, language_dropdown_4, accent_dropdown_4],
                           outputs=[text_output_4, audio_output_4])
     with gr.Tab("Transcribe Audio"):
+        gr.Markdown(transcribe_text_md)
         with gr.Row():
             with gr.Column():
                 language_dropdown_5 = gr.Dropdown(choices=["english", "french", "german"], value='english',
