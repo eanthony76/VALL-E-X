@@ -130,6 +130,31 @@ def transcribe_one(wav, sr):
     gc.collect()
     return lang, text_pr
 
+def transcribe_two(wav, sr, language_to_translate):
+    if sr != 16000:
+        wav4trans = torchaudio.transforms.Resample(sr, 16000)(wav)
+    else:
+        wav4trans = wav
+
+    input_features = whisper_processor(wav4trans.squeeze(0), sampling_rate=16000, return_tensors="pt").input_features
+    forced_decoder_ids = whisper_processor.get_decoder_prompt_ids(language=language_to_translate, task="translate")
+    # generate token ids
+    predicted_ids = whisper.generate(input_features.to(device), forced_decoder_ids=forced_decoder_ids)
+    lang = whisper_processor.batch_decode(predicted_ids[:, 1])[0].strip("<|>")
+    # decode token ids to text
+    text_pr = whisper_processor.batch_decode(predicted_ids, skip_special_tokens=True)[0]
+
+    # print the recognized text
+    print(text_pr)
+
+    if text_pr.strip(" ")[-1] not in "?!.,。，？！。、":
+        text_pr += "."
+
+    # delete all variables
+    del wav4trans, input_features, predicted_ids
+    gc.collect()
+    return lang, text_pr
+
 def make_npz_prompt(name, uploaded_audio, recorded_audio, transcript_content):
     clear_prompts()
     audio_prompt = uploaded_audio if uploaded_audio is not None else recorded_audio
@@ -273,6 +298,37 @@ def infer_from_audio(text, language, accent, audio_prompt, record_audio_prompt, 
     del audio_prompts, text_tokens, text_prompts, phone_tokens, encoded_frames, wav_pr, sr, audio_prompt, record_audio_prompt, transcript_content
     gc.collect()
     return message, (24000, samples.squeeze(0).cpu().numpy())
+
+@torch.no_grad()
+def translate_from_audio(audio_prompt, record_audio_prompt, language_to_translate):
+    if audio_prompt is None and record_audio_prompt is None:
+        audio_prompts = torch.zeros([1, 0, NUM_QUANTIZERS]).type(torch.int32).to(device2)
+        text_prompts = torch.zeros([1, 0]).type(torch.int32)
+        lang_pr = 'en'
+        text_pr = ""
+        enroll_x_lens = 0
+        wav_pr, sr = None, None
+    else:
+        audio_prompts=None
+        audio_prompt = audio_prompt if audio_prompt is not None else record_audio_prompt
+        sr, wav_pr = audio_prompt
+        if not isinstance(wav_pr, torch.FloatTensor):
+            wav_pr = torch.FloatTensor(wav_pr)
+        if wav_pr.abs().max() > 1:
+            wav_pr /= wav_pr.abs().max()
+        if wav_pr.size(-1) == 2:
+            wav_pr = wav_pr[:, 0]
+        if wav_pr.ndim == 1:
+            wav_pr = wav_pr.unsqueeze(0)
+        assert wav_pr.ndim and wav_pr.size(0) == 1
+        
+        lang_pr, text_pr = transcribe_two(wav_pr, sr, language_to_translate)
+
+    message = f"Translated Text: {text_pr}"
+    # delete all variables
+    del wav_pr, sr, audio_prompt, record_audio_prompt
+    gc.collect()
+    return message
 
 @torch.no_grad()
 def infer_from_prompt(text, language, accent, preset_prompt, prompt_file):
@@ -582,5 +638,20 @@ with app:
                 btn_4.click(infer_long_text,
                           inputs=[textbox_4, preset_dropdown_4, prompt_file_4, language_dropdown_4, accent_dropdown_4],
                           outputs=[text_output_4, audio_output_4])
+    with gr.Tab("Transcribe Audio"):
+        with gr.Row():
+            with gr.Column():
+                language_dropdown_5 = gr.Dropdown(choices=["english", "french", "german"], value='english',
+                                                label='language')
+                upload_audio_prompt_3 = gr.Audio(label='uploaded audio file', sources='upload', interactive=True)
+                record_audio_prompt_3 = gr.Audio(label='recorded audio file', sources='microphone', interactive=True)
+                
+            with gr.Column():
+                text_output_5 = gr.Textbox(label="Message")
+                btn_5 = gr.Button("Transcribe!")
+                btn_5.click(translate_from_audio,
+                            inputs = [upload_audio_prompt_3, record_audio_prompt_3, language_dropdown_5],
+                            outputs = [text_output_5])
+
 print("Launching App")
 app.launch(share=True, server_name='0.0.0.0')
