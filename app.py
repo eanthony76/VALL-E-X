@@ -678,7 +678,14 @@ with app:
         gr.Markdown(transcribe_text_md)
         with gr.Row():
             with gr.Column():
-                language_dropdown_5 = gr.Dropdown(choices=["english", "french", "german"], value='english',
+                language_dropdown_5 = gr.Dropdown(choices=["english", "chinese", "german", "spanish", "russian", "korean", "french", "japanese", 
+                "portuguese", "turkish", "polish", "catalan", "dutch", "arabic", "swedish", "italian", "indonesian", "hindi", "finnish", "vietnamese", 
+                "hebrew", "ukrainian", "greek", "malay", "czech", "romanian", "danish", "hungarian", "tamil", "norwegian", "thai", "urdu", "croatian", "bulgarian", 
+                "lithuanian", "latin", "maori", "malayalam", "welsh", "slovak", "telugu", "persian", "latvian", "bengali", "serbian", "azerbaijani", "slovenian", "kannada", "estonian", 
+                "macedonian", "breton", "basque", "icelandic", "armenian", "nepali", "mongolian", "bosnian", "kazakh", "albanian", "swahili", "galician", "marathi", "punjabi", "sinhala", 
+                "khmer", "shona", "yoruba", "somali", "afrikaans", "occitan", "georgian", "belarusian", "tajik", "sindhi", "gujarati", "amharic", "yiddish", "lao", "uzbek", 
+                "faroese", "haitian creole", "pashto", "turkmen", "nynorsk", "maltese", "sanskrit", "luxembourgish", "myanmar", "tibetan", "tagalog", "malagasy", "assamese", 
+                "tatar", "hawaiian", "lingala", "hausa", "bashkir", "javanese", "sundanese", "cantonese"], value='english',
                                                 label='language')
                 upload_audio_prompt_3 = gr.Audio(label='uploaded audio file', sources='upload', interactive=True)
                 record_audio_prompt_3 = gr.Audio(label='recorded audio file', sources='microphone', interactive=True)
