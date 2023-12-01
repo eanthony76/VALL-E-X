@@ -40,3 +40,7 @@ long_text_example = "Just a few years ago, there were no legions of deep learnin
 transcribe_text_md = """
 Upload a file up to 30s in length and select the language of the speaker in the audio file. The application will transcribe your audio file into english.
 """
+
+transcribe_long_md = """
+Upload a file you wish to be transcribed. Currently this feature is only supporting transcribing english audio into english text.
+"""

@@ -35,6 +35,7 @@ from examples import *
 import gradio as gr
 from vocos import Vocos
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
+from transformers import pipeline as PIPELINE
 
 
 
@@ -104,6 +105,30 @@ def clear_prompts():
         gc.collect()
     except:
         return
+
+def pipe(audio):
+    try:
+        pipeline = PIPELINE(
+            "automatic-speech-recognition",
+            model="openai/whisper-small",
+            chunk_length_s=30,
+            device=0)
+    except:
+        pipeline = PIPELINE(
+            "automatic-speech-recognition",
+            model="openai/whisper-small",
+            chunk_length_s=30,
+            device=None)
+
+    sr, wav_pr = audio
+    if wav_pr.shape[1] == 2:
+        wav_pr = np.mean(wav_pr, axis=1)
+
+    wav_pr = wav_pr.astype(np.float32)
+    wav_pr /= np.max(np.abs(wav_pr))
+    print(wav_pr.shape)
+
+    return pipeline({"sampling_rate": sr, "raw": wav_pr})["text"]
 
 def transcribe_one(wav, sr):
     if sr != 16000:
@@ -638,7 +663,18 @@ with app:
                 btn_4.click(infer_long_text,
                           inputs=[textbox_4, preset_dropdown_4, prompt_file_4, language_dropdown_4, accent_dropdown_4],
                           outputs=[text_output_4, audio_output_4])
-    with gr.Tab("Transcribe Audio"):
+    with gr.Tab("Transcribe Long Audio"):
+        gr.Markdown(transcribe_long_md)
+        with gr.Row():
+            upload_audio_prompt_4 = gr.Audio(label = 'uploaded audio file', sources = 'upload', interactive=True)
+            text_output_6 = gr.Textbox(label="Transcription")
+        with gr.Row():
+            btn_6 = gr.Button("Transcribe!")
+            btn_6.click(pipe,
+                        inputs = [upload_audio_prompt_4],
+                        outputs = [text_output_6])
+
+    with gr.Tab("Translate Audio"):
         gr.Markdown(transcribe_text_md)
         with gr.Row():
             with gr.Column():
@@ -649,7 +685,7 @@ with app:
                 
             with gr.Column():
                 text_output_5 = gr.Textbox(label="Message")
-                btn_5 = gr.Button("Transcribe!")
+                btn_5 = gr.Button("Translate!")
                 btn_5.click(translate_from_audio,
                             inputs = [upload_audio_prompt_3, record_audio_prompt_3, language_dropdown_5],
                             outputs = [text_output_5])
